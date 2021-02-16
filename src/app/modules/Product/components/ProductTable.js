@@ -4,7 +4,8 @@ import React from "react";
 import MUIDataTable from "mui-datatables";
 import * as productAxios from "../_redux/ProductAxios";
 import Grid from "@material-ui/core/Grid";
-import ProductTableSearch from "./ProductGroupTableSearch";
+import ProductTableSearch from "./ProductTableSearch";
+import AddProduct from "./Add";
 import DeleteButton from "../../Common/components/Buttons/DeleteButton";
 import EditButton from "../../Common/components/Buttons/EditButton";
 import CircularProgress from "@material-ui/core/CircularProgress";
@@ -64,7 +65,11 @@ function ProductTable(props) {
   };
 
   const handleEdit = (id) => {
-    // props.history.push(`/employee/edit/${id}`);
+    props.history.push(`/product/edit/${id}`);
+  };
+
+  const handleAdd = () => {
+    props.history.push(`/product/new`);
   };
 
   const handleSearch = (values) => {
@@ -270,6 +275,7 @@ function ProductTable(props) {
         submit={handleSearch.bind(this)}
         // submit={setSearchValues.bind(this)}
       ></ProductTableSearch>
+      {/* <AddProduct submit={handleAdd.bind(this)}></AddProduct> */}
       <MUIDataTable
         title={
           <Typography variant="h6">

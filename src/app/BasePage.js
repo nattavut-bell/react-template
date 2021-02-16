@@ -18,6 +18,8 @@ import EmployeeList from "./modules/_EmployeeDemo/pages/EmployeeList";
 
 import ProductList from "./modules/Product/pages/ProductList";
 import ProductGroupList from "./modules/Product/pages/ProductGroupList";
+import Product from "./modules/Product/components/Product";
+import ProductGroup from "./modules/Product/components/ProductGroup";
 
 export default function BasePage(props) {
   // useEffect(() => {
@@ -58,7 +60,14 @@ export default function BasePage(props) {
           path="/productGroup/"
           component={ProductGroupList}
         />
-
+        <ContentRoute exact path="/product/new" component={Product} />
+        <ContentRoute exact path="/product/edit/:id" component={Product} />
+        <ContentRoute exact path="/productGroup/new" component={ProductGroup} />
+        <ContentRoute
+          exact
+          path="/productGroup/edit/:id"
+          component={ProductGroup}
+        />
         {/* End Demo part สามารถ comment ได้ */}
 
         <Route path="/errorUnAuthorized" component={ErrorUnAuthorized} />

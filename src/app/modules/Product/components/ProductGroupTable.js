@@ -64,7 +64,7 @@ function ProductGroupTable(props) {
   };
 
   const handleEdit = (id) => {
-    // props.history.push(`/employee/edit/${id}`);
+    props.history.push(`/productGroup/edit/${id}`);
   };
 
   const handleSearch = (values) => {
@@ -106,7 +106,7 @@ function ProductGroupTable(props) {
               justify="flex-start"
               alignItems="center"
             >
-              {dayjs(data[dataIndex].createdDate).format("DD/MM/YYYY")}
+              {dayjs(data[dataIndex].createdDate).format("DD/MM/YYYY HH:mm")}
             </Grid>
           );
         },

@@ -7,37 +7,123 @@ import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 import DropdownProductGroup from "../components/DropdownProductGroup";
 import { useSelector, useDispatch } from "react-redux";
 import * as productRedux from "../_redux/ProductRedux";
-// import axios from "axios";
-// import * as swal from "../../Common/components/SweetAlert";
+import * as productAxios from "../_redux/ProductAxios";
+import * as swal from "../../Common/components/SweetAlert";
+import axios from "axios";
+import { useHistory, useParams } from "react-router-dom";
 
-function Product() {
+function Product(props) {
+  const handleBack = () => {
+    props.history.push("/product");
+  };
+
   const dispatch = useDispatch();
   const productReducer = useSelector(({ product }) => product);
 
-  //   const validateLastName = (input) => {
-  //     return input === "salmon";
-  //   };
+  let { id } = useParams();
 
-  //   const getVersion = async () => {
-  //     let result;
-  //     await axios
-  //       .get("http://uat.siamsmile.co.th:9188/api/clientversion")
-  //       .then((res) => {
-  //         result = res.data.data.clientVersion;
-  //         console.log(res.data);
-  //       })
-  //       .catch((err) => {
-  //         alert(err.message);
-  //       });
-  //     return result;
-  //   };
+  React.useEffect(() => {
+    if (id) {
+      //edit
+      //get employee from api
+      productAxios
+        .getProductById(id)
+        .then(async (res) => {
+          if (res.data.isSuccess) {
+            console.log(JSON.stringify(res.data.data));
+            let apiData = res.data.data;
+
+            // clone & update value
+            let objPayload = {
+              ...productReducer.currentProductToAdd,
+              id: apiData.id,
+              name: apiData.name,
+              productGroupId: apiData.productGroup.id,
+              price: apiData.price,
+              stock: apiData.stock,
+            };
+
+            // save to redux
+            dispatch(productRedux.actions.updateProduct(objPayload));
+          } else {
+            swal.swalError("Error", res.data.message);
+          }
+        })
+        .catch((err) => {
+          swal.swalError("Error", err.message);
+        });
+    }
+    return () => {
+      //reset redux state
+      dispatch(productRedux.actions.resetProduct());
+    };
+  }, [id]);
+
+  const handleAdd = ({ setSubmitting }, objPayload) => {
+    // console.log(JSON.stringify(objPayload));
+    //connect api
+    productAxios
+      .addProduct(objPayload)
+      .then((res) => {
+        if (res.data.isSuccess) {
+          //Success
+          swal
+            .swalSuccess("Add Completed", `Add id: ${res.data.data.id}`)
+            .then(() => {
+              dispatch(productRedux.actions.resetProduct());
+              props.history.push("/product");
+            });
+        } else {
+          //internal error
+          // alert(res.data.message)
+          swal.swalError("Error", res.data.message);
+        }
+      })
+      .catch((err) => {
+        //error network
+        swal.swalError("Error", err.message);
+      })
+      .finally(() => {
+        setSubmitting(false);
+      });
+  };
+
+  const handleEdit = ({ setSubmitting }, objPayload) => {
+    // console.log(JSON.stringify(objPayload));
+    //connect api
+    console.log(JSON.stringify(objPayload));
+    productAxios
+      .editProduct(id, objPayload)
+      .then((res) => {
+        if (res.data.isSuccess) {
+          //Success
+          swal
+            .swalSuccess("Edit Completed", `edited id: ${res.data.data.id}`)
+            .then(() => {
+              dispatch(productRedux.actions.resetProduct());
+              props.history.push("/product");
+            });
+        } else {
+          //internal error
+          // alert(res.data.message)
+          swal.swalError("Error", res.data.message);
+        }
+      })
+      .catch((err) => {
+        //error network
+        swal.swalError("Error", err.message);
+      })
+      .finally(() => {
+        setSubmitting(false);
+      });
+  };
 
   return (
     <Formik
       enableReinitialize
       //Form fields and default values
       initialValues={{
-        id: productReducer.currentProductToAdd.id,
+        //id: productReducer.currentProductToAdd.id,
         name: productReducer.currentProductToAdd.name,
         price: productReducer.currentProductToAdd.price,
         stock: productReducer.currentProductToAdd.stock,
@@ -48,50 +134,34 @@ function Product() {
         const errors = {};
         //Validate form
 
-        // if (!values.titleId) {
-        //   errors.titleId_isError = true;
-        //   errors.titleId_errorText = "Required";
-        // }
-
-        // if (!values.firstName) {
-        //   errors.firstName = "Required";
-        // }
-
-        // if (!validateLastName(values.lastName)) {
-        //   errors.lastName = "Please put salmon";
-        // }
-
         return errors;
       }}
       //Form Submission
       // ต้องผ่าน Validate ก่อน ถึงจะถูกเรียก
       onSubmit={async (values, { setSubmitting }) => {
-        //validate api -- duplicate code
-        // let version = await getVersion();
-        // if (values.employeeCode === version) {
-        //   swal.swalError("Error", "duplicate code");
-        //   return;
-        // }
+        let confirmMessage = !id ? "Confirm Add?" : "Confirm Edit?";
+        swal.swalConfirm("Confirm save?", confirmMessage).then((result) => {
+          if (result.isConfirmed) {
+            // Save data to redux
+            // clone & update value
+            let objPayload = {
+              ...productReducer.currentProductToAdd,
+              //id: values.id,
+              name: values.name,
+              price: parseInt(values.price),
+              stock: parseInt(values.stock),
+              productGroupId: values.productGroupId,
+            };
 
-        // Save data to redux
-        // clone & update value
-        let objPayload = {
-          ...productReducer.currentProductToAdd,
-          id: values.id,
-          name: values.name,
-          price: values.price,
-          stock: values.stock,
-          productGroupId: values.productGroupId,
-        };
-
-        // save to redux
-        dispatch(productRedux.actions.updateProduct(objPayload));
-
-        // dispatch(
-        //     productRedux.actions.setCurrentPage(employeeReducer.currentPage + 1)
-        // );
-
-        setSubmitting(false);
+            if (!id) {
+              //add
+              handleAdd({ setSubmitting }, objPayload);
+            } else {
+              //edit
+              handleEdit({ setSubmitting }, objPayload);
+            }
+          }
+        });
       }}
     >
       {/* Render form */}
@@ -148,7 +218,6 @@ function Product() {
               justify="center"
               alignItems="center"
             >
-              {isSubmitting && <LinearProgress />}
               <Grid item xs={3} lg={3}>
                 <Button
                   fullWidth
@@ -157,8 +226,18 @@ function Product() {
                   disabled={isSubmitting}
                   onClick={submitForm}
                 >
-                  Next
-                  <NavigateNextIcon></NavigateNextIcon>
+                  Save
+                </Button>
+              </Grid>
+              <Grid item xs={3} lg={3}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  // color="primary"
+                  disabled={isSubmitting}
+                  onClick={handleBack}
+                >
+                  Cancel
                 </Button>
               </Grid>
             </Grid>

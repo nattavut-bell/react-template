@@ -6,8 +6,17 @@ import { TextField } from "formik-material-ui";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
+import { useHistory } from "react-router-dom";
+
+import AddButton from "../../Common/components/Buttons/AddButton";
 
 function ProductTableSearch(props) {
+  let history = useHistory();
+
+  const handleOpen = () => {
+    history.push(`/product/new`);
+  };
+
   return (
     <Card elevation={3} style={{ marginBottom: 5 }}>
       <CardContent>
@@ -38,6 +47,7 @@ function ProductTableSearch(props) {
           {({ submitForm, isSubmitting, values, errors, resetForm }) => (
             <Form>
               <Grid container spacing={3}>
+                <Grid item xs={12} lg={3}></Grid>
                 <Grid item xs={12} lg={3}>
                   <Field
                     fullWidth
@@ -48,9 +58,11 @@ function ProductTableSearch(props) {
                     name="searchDetail"
                   />
                 </Grid>
+
                 <Grid item xs={12} lg={3}>
                   {isSubmitting && <LinearProgress />}
                   <Button
+                    style={{ marginTop: 10 }}
                     fullWidth
                     variant="contained"
                     color="primary"
@@ -60,18 +72,20 @@ function ProductTableSearch(props) {
                     Search
                   </Button>
                 </Grid>
-                <Grid item xs={12} lg={3}></Grid>
-                <Grid item xs={12} lg={3}>
-                  {/* {isSubmitting && <LinearProgress />} */}
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    // disabled={isSubmitting}
-                    // onClick={submitForm}
-                  >
-                    Add Product
-                  </Button>
+
+                <Grid
+                  item
+                  xs={12}
+                  lg={3}
+                  container
+                  direction="row"
+                  justify="flex-end"
+                  alignItems="center"
+                >
+                  <AddButton style={{ marginRight: 5 }} onClick={handleOpen}>
+                    {" "}
+                    Add
+                  </AddButton>
                 </Grid>
               </Grid>
             </Form>

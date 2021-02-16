@@ -18,9 +18,9 @@ export const actionTypes = {
 // state ค่าที่ถูกเก็บไว้
 const initialState = {
   currentProductToAdd: {
-    id: "",
+    id: 0,
     name: "",
-    productGroupId: "",
+    productGroupId: 0,
     price: 0,
     stock: 0,
   },
@@ -33,13 +33,13 @@ export const reducer = (state = initialState, action) => {
       return { ...state, currentProductToAdd: action.payload };
     }
 
-    // case actionTypes.RESET_PRODUCT: {
-    //   return {
-    //     ...state,
-    //     currentEmployeeToAdd: initialState.currentEmployeeToAdd,
-    //     currentPage: 0,
-    //   };
-    // }
+    case actionTypes.RESET_PRODUCT: {
+      return {
+        ...state,
+        currentProductToAdd: initialState.currentProductToAdd,
+        // currentPage: 0,
+      };
+    }
 
     default:
       return state;
